@@ -10,15 +10,27 @@ struct GlobalDescriptorTable global_descriptor_table = {
         {
             // TODO : Implement
             // Null Descriptor
-        },
-        {
-            // TODO : Implement
-            .segment_low = 0xFFFFFF,
-            .segment_high = 0xFFFFFF,
+            .segment_low = 0,
+            .segment_high = 0,
             .base_low = 0,
             .base_mid = 0,
             .base_high = 0,
-            .type_bit = 0xA / 0b1010,
+            .type_bit = 0,
+            .non_system = 0,
+            .descriptor_privilege_level = 0,
+            .present = 0,
+            .long_mode = 0,
+            .default_operation_size = 0,
+            .granularity = 0,
+        },
+        {
+            // TODO : Implement
+            .segment_low = 0xFFFF,
+            .segment_high = 0xF,
+            .base_low = 0,
+            .base_mid = 0,
+            .base_high = 0,
+            .type_bit = 0xA,
             .non_system = 1,
             .descriptor_privilege_level = 0,
             .present = 1,
@@ -29,12 +41,12 @@ struct GlobalDescriptorTable global_descriptor_table = {
         },
         {
             // TODO : Implement
-            .segment_low = 0xFFFFFF,
-            .segment_high = 0xFFFFFF,
+            .segment_low = 0xFFFF,
+            .segment_high = 0xF,
             .base_low = 0,
             .base_mid = 0,
             .base_high = 0,
-            .type_bit = 0x2 / 0b0010,
+            .type_bit = 0x2,
             .non_system = 1,
             .descriptor_privilege_level = 0,
             .present = 1,
