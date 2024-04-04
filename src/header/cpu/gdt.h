@@ -46,8 +46,6 @@ struct SegmentDescriptor
     uint8_t descriptor_privilege_level : 2;
     uint8_t present : 1;
 
-    // TODO : Continue SegmentDescriptor definition
-
     // Next 16-bit (Bit 48 to 63)
     uint8_t segment_high : 4;
     uint8_t available : 1;
