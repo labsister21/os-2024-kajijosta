@@ -31,7 +31,8 @@ void set_interrupt_gate(
     idt_int_gate->offset_low = (uint32_t)handler_address & 0xFFFF;
     idt_int_gate->offset_high = ((uint32_t)handler_address >> 16) & 0xFFFF;
     idt_int_gate->segment = gdt_seg_selector;
-    idt_int_gate->_reserved = privilege;
+    idt_int_gate->_reserved = 0;
+    idt_int_gate->dpl = privilege;
 
     // Target system 32-bit and flag this as valid interrupt gate
     idt_int_gate->_r_bit_1 = INTERRUPT_GATE_R_BIT_1;
