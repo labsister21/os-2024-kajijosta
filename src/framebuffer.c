@@ -32,6 +32,10 @@ void framebuffer_clear(void)
   {
     memset((uint8_t *)(FRAMEBUFFER_MEMORY_OFFSET + i * 80), black, 80 * 2);
   }
+  for (size_t i = 0; i < 25 * 80; i++)
+  {
+    framebuffer_write(i / 80, i % 80, ' ', 0x07, 0x00);
+  }
 
   framebuffer_set_cursor(0, 0);
 }
