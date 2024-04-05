@@ -14,6 +14,14 @@
 #define KEYBOARD_DATA_PORT 0x60
 #define EXTENDED_SCANCODE_BYTE 0xE0
 
+#define MAX_ROWS 25
+
+/**
+ * line_lengths[MAX_ROWS]
+ *
+ */
+extern uint8_t line_lengths[MAX_ROWS];
+
 /**
  * keyboard_scancode_1_to_ascii_map[256], Convert scancode values that correspond to ASCII printables
  * How to use this array: ascii_char = k[scancode]
@@ -33,6 +41,7 @@ struct KeyboardDriverState
 {
     bool read_extended_mode;
     bool keyboard_input_on;
+    bool print_mode;
     char keyboard_buffer;
     int keyboard_row;
     int keyboard_col;
@@ -47,7 +56,7 @@ void keyboard_state_activate(void);
 void keyboard_state_deactivate(void);
 
 // Get keyboard buffer value and flush the buffer - @param buf Pointer to char buffer
-void get_keyboard_buffer(char *buf);
+void get_keyboard_buffer(char *buf, int *row, int *col, bool *print_mode);
 
 /* -- Keyboard Interrupt Service Routine -- */
 
