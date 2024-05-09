@@ -6,11 +6,15 @@
 #include "header/cpu/keyboard.h"
 #include "header/cpu/fat32.h"
 #include "header/cpu/disk.h"
+#include "header/cpu/paging.h"
 #include <stdbool.h>
 
 
 void kernel_setup(void)
 {
+    // Test paging
+    paging_allocate_user_page_frame(&_paging_kernel_page_directory, (uint8_t*) 0x600000);
+    *((uint8_t*) 0x500000) = 1;
     load_gdt(&_gdt_gdtr);
     pic_remap();
     initialize_idt();
