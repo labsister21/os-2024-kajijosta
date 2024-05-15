@@ -6,8 +6,8 @@
 static struct KeyboardDriverState keyboard_state = {
     .keyboard_input_on = false,
     .keyboard_buffer = 0,
-    .keyboard_row = 0,
-    .keyboard_col = 0,
+    // .keyboard_row = 0,
+    // .keyboard_col = 0,
     .print_mode = false,
 };
 
@@ -283,24 +283,13 @@ void keyboard_isr(void)
         char ascii_char = keyboard_scancode_1_to_ascii_map[scancode];
         if (ascii_char != 0)
         {
-            if (ascii_char == '\n')
+            if (ascii_char == '\b')
             {
-                line_lengths[keyboard_state.keyboard_row] = keyboard_state.keyboard_col;
-                keyboard_state.keyboard_row++;
-                keyboard_state.keyboard_col = 0;
-            }
-            else if (ascii_char == '\b')
-            {
-                if (keyboard_state.keyboard_col > 0)
+                if (keyboard_state.keyboard_col > -1)
                 {
+                    framebuffer_write(keyboard_state.keyboard_row, keyboard_state.keyboard_col, ' ', 0xF, 0);
+                    framebuffer_set_cursor(keyboard_state.keyboard_row, keyboard_state.keyboard_col);
                     keyboard_state.keyboard_col--;
-                    framebuffer_write(keyboard_state.keyboard_row, keyboard_state.keyboard_col, ' ', 0xF, 0);
-                }
-                else if (keyboard_state.keyboard_row > 0)
-                {
-                    keyboard_state.keyboard_row--;
-                    keyboard_state.keyboard_col = line_lengths[keyboard_state.keyboard_row];
-                    framebuffer_write(keyboard_state.keyboard_row, keyboard_state.keyboard_col, ' ', 0xF, 0);
                 }
             }
             else
@@ -324,13 +313,25 @@ void keyboard_state_deactivate(void)
     keyboard_state.keyboard_input_on = false;
 }
 
-void get_keyboard_buffer(char *buf, int *row, int *col, bool *print_mode)
+void get_keyboard_buffer(char *buf, bool *print_mode)
 {
     *buf = keyboard_state.keyboard_buffer;
-    *row = keyboard_state.keyboard_row;
-    *col = keyboard_state.keyboard_col;
     *print_mode = keyboard_state.print_mode;
 
     keyboard_state.keyboard_buffer = 0;
     keyboard_state.print_mode = false;
+}
+
+void puts(const char *str, uint8_t char_count, uint8_t color)
+{
+    for (const char *p = str; p < str + char_count; p++)
+    {
+        framebuffer_write(keyboard_state.keyboard_row, keyboard_state.keyboard_col, *p, color, 0);
+        if (p != str + char_count - 1)
+        {
+            keyboard_state.keyboard_col++;
+        }
+    }
+
+    framebuffer_set_cursor(keyboard_state.keyboard_row, keyboard_state.keyboard_col + 1);
 }
