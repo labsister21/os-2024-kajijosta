@@ -135,8 +135,9 @@ extern struct TSSEntry _interrupt_tss_entry;
 /**
  * TSSEntry, Task State Segment. Used when jumping back to ring 0 / kernel
  */
-struct TSSEntry {
-    uint32_t prev_tss; // Previous TSS 
+struct TSSEntry
+{
+    uint32_t prev_tss; // Previous TSS
     uint32_t esp0;     // Stack pointer to load when changing to kernel mode
     uint32_t ss0;      // Stack segment to load when changing to kernel mode
     // Unused variables

@@ -285,7 +285,7 @@ void keyboard_isr(void)
         {
             if (ascii_char == '\b')
             {
-                if (keyboard_state.keyboard_col > -1)
+                if (keyboard_state.keyboard_col > 17)
                 {
                     framebuffer_write(keyboard_state.keyboard_row, keyboard_state.keyboard_col, ' ', 0xF, 0);
                     framebuffer_set_cursor(keyboard_state.keyboard_row, keyboard_state.keyboard_col);
@@ -333,5 +333,11 @@ void puts(const char *str, uint8_t char_count, uint8_t color)
         }
     }
 
+    framebuffer_set_cursor(keyboard_state.keyboard_row, keyboard_state.keyboard_col + 1);
+}
+
+void puts_char(const char c, uint8_t color)
+{
+    framebuffer_write(keyboard_state.keyboard_row, keyboard_state.keyboard_col, c, color, 0);
     framebuffer_set_cursor(keyboard_state.keyboard_row, keyboard_state.keyboard_col + 1);
 }

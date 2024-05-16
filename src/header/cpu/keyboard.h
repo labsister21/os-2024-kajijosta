@@ -68,4 +68,6 @@ void keyboard_isr(void);
 
 void puts(const char *str, uint8_t char_count, uint8_t color);
 
+void puts_char(const char c, uint8_t color);
+
 #endif
