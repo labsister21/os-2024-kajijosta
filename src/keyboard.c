@@ -285,17 +285,16 @@ void keyboard_isr(void)
         {
             if (ascii_char == '\b')
             {
-                if (keyboard_state.keyboard_col > 17)
+                if (keyboard_state.keyboard_col > 18)
                 {
+                    keyboard_state.keyboard_col--;
                     framebuffer_write(keyboard_state.keyboard_row, keyboard_state.keyboard_col, ' ', 0xF, 0);
                     framebuffer_set_cursor(keyboard_state.keyboard_row, keyboard_state.keyboard_col);
-                    keyboard_state.keyboard_col--;
                 }
             }
             else
             {
                 keyboard_state.print_mode = true;
-                keyboard_state.keyboard_col++;
             }
             keyboard_state.keyboard_buffer = ascii_char;
         }
@@ -322,22 +321,21 @@ void get_keyboard_buffer(char *buf, bool *print_mode)
     keyboard_state.print_mode = false;
 }
 
-void puts(const char *str, uint8_t char_count, uint8_t color)
+void puts(const char *str, uint8_t size, uint8_t color)
 {
-    for (const char *p = str; p < str + char_count; p++)
+    const char *p = str;
+    for (int i = 0; i < size; i++)
     {
         framebuffer_write(keyboard_state.keyboard_row, keyboard_state.keyboard_col, *p, color, 0);
-        if (p != str + char_count - 1)
-        {
-            keyboard_state.keyboard_col++;
-        }
+        keyboard_state.keyboard_col += 1;
+        p++;
     }
-
-    framebuffer_set_cursor(keyboard_state.keyboard_row, keyboard_state.keyboard_col + 1);
+    framebuffer_set_cursor(keyboard_state.keyboard_row, keyboard_state.keyboard_col);
 }
 
 void puts_char(const char c, uint8_t color)
 {
     framebuffer_write(keyboard_state.keyboard_row, keyboard_state.keyboard_col, c, color, 0);
-    framebuffer_set_cursor(keyboard_state.keyboard_row, keyboard_state.keyboard_col + 1);
+    keyboard_state.keyboard_col += 1;
+    framebuffer_set_cursor(keyboard_state.keyboard_row, keyboard_state.keyboard_col);
 }

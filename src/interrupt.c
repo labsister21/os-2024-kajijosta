@@ -89,16 +89,16 @@ void syscall(struct InterruptFrame frame)
         *((int8_t *)frame.cpu.general.ecx) = write(
             *(struct FAT32DriverRequest *)frame.cpu.general.ebx);
         break;
-    // karena delete masih agak bermasalah hehe
-    // case 3:
-    //     *((int8_t *)frame.cpu.general.ecx) = delete (
-    //         *(struct FAT32DriverRequest *)frame.cpu.general.ebx);
-    //     break;
+    case 3:
+        *((int8_t *)frame.cpu.general.ecx) = delete (
+            *(struct FAT32DriverRequest *)frame.cpu.general.ebx);
+        break;
     case 4:
-        get_keyboard_buffer((char *)frame.cpu.general.ebx, false);
+        get_keyboard_buffer((char *)frame.cpu.general.ebx, (bool *)frame.cpu.general.ecx);
         break;
     case 5:
         puts_char((char)frame.cpu.general.ebx, frame.cpu.general.ecx);
+        break;
     case 6:
         puts(
             (char *)frame.cpu.general.ebx,

@@ -14,7 +14,22 @@ void syscall(uint32_t eax, uint32_t ebx, uint32_t ecx, uint32_t edx)
 
 int main(void)
 {
-    syscall(6, (uint32_t) "owi\n", 4, 0xF);
+    syscall(6, (uint32_t) "root@kajijOSta", 14, 0x2);
+    syscall(5, (uint32_t)':', 0x8, 0);
+    syscall(5, (uint32_t)'/', 0x1, 0);
+    syscall(5, (uint32_t)'$', 0x8, 0);
+    syscall(5, (uint32_t)' ', 0x8, 0);
+    syscall(7, 0, 0, 0);
+    while (true)
+    {
+        char buf;
+        bool print_mode;
+        syscall(4, (uint32_t)&buf, (uint32_t)&print_mode, 0);
+        if (buf && print_mode)
+        {
+            syscall(6, (uint32_t)&buf, 1, 0xF);
+        }
+    }
 
     return 0;
 }

@@ -9,7 +9,7 @@
 #include "header/cpu/paging.h"
 #include <stdbool.h>
 
-// // Using keyboard
+// Using keyboard
 // void kernel_setup(void)
 // {
 //     load_gdt(&_gdt_gdtr);
@@ -20,7 +20,12 @@
 //     framebuffer_set_cursor(0, 0);
 //     keyboard_state_activate();
 //     // int row = 0, col = 0;
-//     puts("Welcome to the kernel", 21, 0xF);
+//     puts("root@kajijOSta", 14, 0x2);
+//     puts_char(':', 0x1);
+//     puts_char('/', 0x8);
+//     puts("$ ", 2, 0x1);
+//     // puts_char('a', 0xF);
+//     // puts("test", 0xF);
 //     while (true)
 //     {
 //         char c;
@@ -34,7 +39,7 @@
 //     }
 // }
 
-// // Test user shell
+// Test user shell
 void kernel_setup(void)
 {
     load_gdt(&_gdt_gdtr);
@@ -59,8 +64,6 @@ void kernel_setup(void)
         .buffer_size = 0x100000,
     };
     read(request);
-
-    // puts("dhika", 6, 0xF);
     // Set TSS $esp pointer and jump into shell
     set_tss_kernel_current_stack();
     kernel_execute_user_program((uint8_t *)0);
@@ -69,7 +72,7 @@ void kernel_setup(void)
         ;
 }
 
-// // Test CRUD
+// Test CRUD
 // void kernel_setup(void)
 // {
 //     load_gdt(&_gdt_gdtr);
@@ -90,7 +93,7 @@ void kernel_setup(void)
 //                                       .name = "shell",
 //                                       .parent_cluster_number = 0x02,
 //                                       .buffer_size = 0x100000};
-//     uint8_t err = read(req2);
+//     uint8_t err = delete (req2);
 //     if (err == 0)
 //         framebuffer_write(0, 0, '0', 0xF, 0);
 //     else if (err == 1)
@@ -103,19 +106,6 @@ void kernel_setup(void)
 //         framebuffer_write(0, 1, '1', 0xF, 0);
 //     }
 
-// struct ClusterBuffer buf2;
-// struct FAT32DriverRequest req3 = {.buf = &buf2,
-//                                   .name = "panji2",
-//                                   .parent_cluster_number = 0x02,
-//                                   .buffer_size = 10000};
-// uint8_t err2 = write(req3);
-// if (err2 == 0)
-//     framebuffer_write(0, 0, '0', 0xF, 0);
-// else if (err2 == 1)
-//     framebuffer_write(0, 0, '1', 0xF, 0);
-// else if (err2 == 2)
-//     framebuffer_write(0, 0, '2', 0xF, 0);
-// else
-// {
-//     framebuffer_write(0, 0, '-', 0xF, 0);
-//     framebuffer_write(0, 1, '1', 0xF, 0);
+//     while (true)
+//         ;
+// }
