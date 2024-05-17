@@ -100,3 +100,54 @@ bool paging_free_user_page_frame(struct PageDirectory *page_dir, void *virtual_a
 
     return true;
 }
+
+// Simulated physical-to-virtual address mapping offset
+#define KERNEL_VIRTUAL_ADDRESS_BASE 0xC0000000
+
+// Array to simulate physical page directory storage
+__attribute__((aligned(0x1000))) static struct PageDirectory page_directory_pool[PAGING_DIRECTORY_TABLE_MAX_COUNT];
+static bool page_directory_usage[PAGING_DIRECTORY_TABLE_MAX_COUNT] = {false};
+
+struct PageDirectory* paging_create_new_page_directory(void) {
+    for (int i = 0; i < PAGING_DIRECTORY_TABLE_MAX_COUNT; i++) {
+        if (!page_directory_usage[i]) {
+            page_directory_usage[i] = true;
+            struct PageDirectory* pd = &page_directory_pool[i];
+
+            // Zero out the new page directory
+            memset(pd, 0, sizeof(struct PageDirectory));
+
+            // Setup default kernel mapping as an example
+            pd->table[0x300] = (struct PageDirectoryEntry){
+                .present = 1,
+                .writable = 1,
+                .pageSize = 1,
+                .address = 0 // Map to 0 physical address
+            };
+            return pd;
+        }
+    }
+    return NULL; // No available page directories
+}
+
+bool paging_free_page_directory(struct PageDirectory *page_dir) {
+    for (int i = 0; i < PAGING_DIRECTORY_TABLE_MAX_COUNT; i++) {
+        if (page_dir == &page_directory_pool[i] && page_directory_usage[i]) {
+            memset(page_dir, 0, sizeof(struct PageDirectory));
+            page_directory_usage[i] = false;
+            return true;
+        }
+    }
+    return false; // Page directory not found or already free
+}
+
+struct PageDirectory* paging_get_current_page_directory_addr(void) {
+    uint32_t cr3;
+    __asm__ volatile("mov %%cr3, %0" : "=r"(cr3));
+    return (struct PageDirectory *)(cr3 + KERNEL_VIRTUAL_ADDRESS_BASE);
+}
+
+void paging_use_page_directory(struct PageDirectory *page_dir_virtual_addr) {
+    uint32_t phys_addr = (uint32_t)page_dir_virtual_addr - KERNEL_VIRTUAL_ADDRESS_BASE;
+    __asm__ volatile("mov %0, %%cr3" : : "r"(phys_addr) : "memory");
+}
