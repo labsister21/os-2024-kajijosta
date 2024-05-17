@@ -404,7 +404,6 @@ int8_t write(struct FAT32DriverRequest request)
   }
 }
 
-// TODO masi salah
 int8_t delete(struct FAT32DriverRequest request)
 {
   // Membaca direktori
