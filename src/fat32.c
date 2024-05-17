@@ -253,12 +253,12 @@ int8_t read_directory(struct FAT32DriverRequest request)
   return 2; // Error: folder tidak ditemukan
 }
 
-double ceil(double x)
+uint8_t ceil(float n)
 {
-  int intPart = (int)x;
-  return (x > intPart) ? (double)(intPart + 1) : (double)intPart;
+  if ((int)n == n)
+    return n;
+  return (int)n + 1;
 }
-
 // DONE
 int8_t write(struct FAT32DriverRequest request)
 {
@@ -269,24 +269,24 @@ int8_t write(struct FAT32DriverRequest request)
   uint8_t idx;
   for (idx = 0; idx < CLUSTER_SIZE / sizeof(struct FAT32DirectoryEntry); idx++)
   {
-    if (fat32_driver_state.dir_table_buf.table[idx].name[0] == 0)
+    if (fat32_driver_state.dir_table_buf.table[idx].user_attribute != UATTR_NOT_EMPTY)
     {
       break;
     }
   }
 
-  // Jika direktori invalid
-  if (fat32_driver_state.dir_table_buf.table[0].user_attribute != UATTR_NOT_EMPTY)
-  {
-    return 2; // Error: direktori tidak valid
-  }
+  // // Jika direktori invalid
+  // if (fat32_driver_state.dir_table_buf.table[0].user_attribute != UATTR_NOT_EMPTY)
+  // {
+  //   return 2; // Error: direktori tidak valid
+  // }
 
   // Cek jika ada nama file atau folder yang sama
   for (uint8_t j = 0; j < CLUSTER_SIZE / sizeof(struct FAT32DirectoryEntry); j++)
   {
     struct FAT32DirectoryEntry entry = fat32_driver_state.dir_table_buf.table[j];
-    if (memcmp(entry.name, request.name, sizeof(entry.name)) == 0 &&
-        memcmp(entry.ext, request.ext, sizeof(entry.ext)) == 0)
+    if (memcmp(entry.name, request.name, 8) == 0 &&
+        memcmp(entry.ext, request.ext, 3) == 0)
     {
       return 1; // Error: file/folder dengan nama yang sama sudah ada
     }
@@ -352,7 +352,7 @@ int8_t write(struct FAT32DriverRequest request)
     // cari cluster yang kosong
     uint8_t tempindex = idx;
     uint8_t nextIndex = idx;
-    for (uint8_t i = 0; i < ceil(request.buffer_size / CLUSTER_SIZE); i++)
+    for (uint8_t i = 0; i < ceil(request.buffer_size / (float)CLUSTER_SIZE); i++)
     {
       // YANG BERHUBUNGAN DENGAN FAT TABLE
       //  cari yang kosong pertama

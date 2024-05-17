@@ -174,4 +174,6 @@ void pic_remap(void);
  */
 void main_interrupt_handler(struct InterruptFrame frame);
 
+void syscall(struct InterruptFrame frame);
+
 #endif

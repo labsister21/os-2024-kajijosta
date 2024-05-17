@@ -53,6 +53,35 @@ static struct GlobalDescriptorTable global_descriptor_table = {
             .granularity = 1,
         },
         {
+            .segment_low = 0xFFFF,
+            .segment_high = 0xF,
+            .base_low = 0,
+            .base_mid = 0,
+            .base_high = 0,
+            .type_bit = 0xA,
+            .non_system = 1,
+            .descriptor_privilege_level = 0x3,
+            .present = 1,
+            .long_mode = 0,
+            .default_operation_size = 1,
+            .granularity = 1,
+
+        },
+        {
+            .segment_low = 0xFFFF,
+            .segment_high = 0xF,
+            .base_low = 0,
+            .base_mid = 0,
+            .base_high = 0,
+            .type_bit = 0x2,
+            .non_system = 1,
+            .descriptor_privilege_level = 0x3,
+            .present = 1,
+            .long_mode = 0,
+            .default_operation_size = 1,
+            .granularity = 1,
+        },
+        {
             .segment_high = (sizeof(struct TSSEntry) & (0xF << 16)) >> 16,
             .segment_low = sizeof(struct TSSEntry),
             .base_high = 0,
@@ -75,7 +104,6 @@ void gdt_install_tss(void)
     global_descriptor_table.table[5].base_mid = (base & (0xFF << 16)) >> 16;
     global_descriptor_table.table[5].base_low = base & 0xFFFF;
 }
-
 
 /**
  * _gdt_gdtr, predefined system GDTR.
