@@ -10,6 +10,7 @@
 uint8_t *image_storage;
 uint8_t *file_buffer;
 
+// Membaca blok data 
 void read_blocks(void *ptr, uint32_t logical_block_address, uint8_t block_count)
 {
     for (int i = 0; i < block_count; i++)
@@ -21,6 +22,7 @@ void read_blocks(void *ptr, uint32_t logical_block_address, uint8_t block_count)
     }
 }
 
+// Menulis blok data 
 void write_blocks(const void *ptr, uint32_t logical_block_address, uint8_t block_count)
 {
     for (int i = 0; i < block_count; i++)
@@ -34,20 +36,21 @@ void write_blocks(const void *ptr, uint32_t logical_block_address, uint8_t block
 
 int main(int argc, char *argv[])
 {
+    // Memeriksa jumlah argumen yang diberikan
     if (argc < 4)
     {
         fprintf(stderr, "inserter: ./inserter <file to insert> <parent cluster index> <storage>\n");
         exit(1);
     }
 
-    // Read storage into memory, requiring 4 MB memory
+    // Membaca storage ke memori, membutuhkan 4 MB memori
     image_storage = malloc(4 * 1024 * 1024);
     file_buffer = malloc(4 * 1024 * 1024);
     FILE *fptr = fopen(argv[3], "r");
     fread(image_storage, 4 * 1024 * 1024, 1, fptr);
     fclose(fptr);
 
-    // Read target file, assuming file is less than 4 MiB
+    // Membaca file target, dengan asumsi file kurang dari 4 MiB
     FILE *fptr_target = fopen(argv[1], "r");
     size_t filesize = 0;
     if (fptr_target == NULL)
@@ -98,7 +101,7 @@ int main(int argc, char *argv[])
         puts("Error: Unknown error");
     }
 
-    // Write image in memory into original, overwrite them
+     // Menulis image dalam memori ke asli, overwrite
     fptr = fopen(argv[3], "w");
     fwrite(image_storage, 4 * 1024 * 1024, 1, fptr);
     fclose(fptr);
