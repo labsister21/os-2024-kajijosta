@@ -4,7 +4,7 @@
 
 > This program is a fully functional operating system developed from scratch, featuring interrupt handling, file system implementation, paging, user mode, shell creation, and multitasking capabilities.
 
-![OS Image](./images/os.jpg)
+![OS Image](./image/os.jpg)
 
 ## Table of Contents
 
