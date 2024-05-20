@@ -90,10 +90,10 @@ void kernel_setup(void)
 //     // read_blocks(&b, 17, 1);
 //     struct ClusterBuffer buf;
 //     struct FAT32DriverRequest req2 = {.buf = &buf,
-//                                       .name = "shell",
+//                                       .name = "nbuna",
 //                                       .parent_cluster_number = 0x02,
 //                                       .buffer_size = 0x100000};
-//     uint8_t err = delete (req2);
+//     uint8_t err = read(req2);
 //     if (err == 0)
 //         framebuffer_write(0, 0, '0', 0xF, 0);
 //     else if (err == 1)
@@ -104,6 +104,37 @@ void kernel_setup(void)
 //     {
 //         framebuffer_write(0, 0, '-', 0xF, 0);
 //         framebuffer_write(0, 1, '1', 0xF, 0);
+//     }
+
+//     struct FAT32DriverRequest req3 = {.buf = &buf,
+//                                       .name = "test1",
+//                                       .parent_cluster_number = 0x02,
+//                                       .buffer_size = 0x100000};
+
+//     err = write(req3);
+//     if (err == 0)
+//         framebuffer_write(1, 0, '0', 0xF, 0);
+//     else if (err == 1)
+//         framebuffer_write(1, 0, '1', 0xF, 0);
+//     else if (err == 2)
+//         framebuffer_write(1, 0, '2', 0xF, 0);
+//     else
+//     {
+//         framebuffer_write(1, 0, '-', 0xF, 0);
+//         framebuffer_write(1, 1, '1', 0xF, 0);
+//     }
+
+//     err = read(req3);
+//     if (err == 0)
+//         framebuffer_write(2, 0, '0', 0xF, 0);
+//     else if (err == 1)
+//         framebuffer_write(2, 0, '1', 0xF, 0);
+//     else if (err == 2)
+//         framebuffer_write(2, 0, '2', 0xF, 0);
+//     else
+//     {
+//         framebuffer_write(2, 0, '-', 0xF, 0);
+//         framebuffer_write(2, 1, '1', 0xF, 0);
 //     }
 
 //     while (true)

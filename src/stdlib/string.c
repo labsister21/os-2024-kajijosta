@@ -99,6 +99,11 @@ char *get_string(char *s, uint8_t idx)
   {
     end++;
   }
-  *end = '\0';
+  // Set all remaining characters to '\0'
+  while (*end != '\0')
+  {
+    *end = '\0';
+    end++;
+  }
   return s;
 }

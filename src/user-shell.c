@@ -64,6 +64,111 @@ struct DirectoryState pop_directory()
     return directory_stack[top--];
 }
 
+void mv(char *source, char *destination)
+{
+    struct FAT32DirectoryTable buf_dir;
+    struct FAT32DriverRequest request_dir = {
+        .buf = &buf_dir,
+        .parent_cluster_number = current_directory.parent_cluster_number,
+        .buffer_size = 0,
+    };
+
+    memcpy(request_dir.name, current_directory.name, sizeof(request_dir.name));
+    syscall(READ_DIR, (uint32_t)&request_dir, 0, 0);
+    uint32_t filesize = 0;
+
+    for (int i = 2; i < 64; i++)
+    {
+        if (buf_dir.table[i].user_attribute == UATTR_NOT_EMPTY)
+        {
+
+            if (strcmp(buf_dir.table[i].name, source))
+            {
+                filesize = buf_dir.table[i].filesize;
+            }
+        }
+    }
+
+    struct ClusterBuffer buf;
+    struct FAT32DriverRequest request = {
+        .buf = &buf,
+        .parent_cluster_number = current_directory.parent_cluster_number,
+        .buffer_size = 0x100000,
+    };
+
+    memcpy(request.name, source, 8);
+
+    syscall(READ, (uint32_t)&request, 0, 0);
+
+    struct FAT32DriverRequest request2 = {
+        .buf = &buf,
+        .ext = "\0\0\0",
+        .parent_cluster_number = current_directory.parent_cluster_number,
+        .buffer_size = filesize,
+    };
+
+    memcpy(request2.name, destination, sizeof(request2.name));
+
+    uint32_t flag = 2;
+    syscall(READ, (uint32_t)&request2, flag, 0);
+    if (flag == 0)
+        syscall(DELETE, (uint32_t)&request2, 0, 0);
+    syscall(WRITE, (uint32_t)&request2, 0, 0);
+    syscall(DELETE, (uint32_t)&request, 0, 0);
+}
+
+void cp(char *source, char *destination)
+{
+    struct FAT32DirectoryTable buf_dir;
+    struct FAT32DriverRequest request_dir = {
+        .buf = &buf_dir,
+        .parent_cluster_number = current_directory.parent_cluster_number,
+        .buffer_size = 0,
+    };
+
+    memcpy(request_dir.name, current_directory.name, sizeof(request_dir.name));
+    syscall(READ_DIR, (uint32_t)&request_dir, 0, 0);
+    uint32_t filesize = 0;
+
+    for (int i = 2; i < 64; i++)
+    {
+        if (buf_dir.table[i].user_attribute == UATTR_NOT_EMPTY)
+        {
+
+            if (strcmp(buf_dir.table[i].name, source))
+            {
+                filesize = buf_dir.table[i].filesize;
+            }
+        }
+    }
+
+    struct ClusterBuffer buf;
+    struct FAT32DriverRequest request = {
+        .buf = &buf,
+        .parent_cluster_number = current_directory.parent_cluster_number,
+        .buffer_size = 0x100000,
+    };
+
+    memcpy(request.name, source, 8);
+
+    syscall(READ, (uint32_t)&request, 0, 0);
+
+    struct FAT32DriverRequest request2 = {
+        .buf = &buf,
+        .ext = "\0\0\0",
+        .parent_cluster_number = current_directory.parent_cluster_number,
+        .buffer_size = filesize,
+    };
+
+    memcpy(request2.name, destination, sizeof(request2.name));
+
+    uint32_t flag = 2;
+    syscall(READ, (uint32_t)&request2, flag, 0);
+    if (flag == 0)
+        syscall(DELETE, (uint32_t)&request2, 0, 0);
+    syscall(WRITE, (uint32_t)&request2, 0, 0);
+}
+
 void find(char *name, uint32_t cluster_number, char *curent_dir, uint32_t next_cluster)
 {
     struct FAT32DirectoryTable buf;
@@ -131,24 +236,28 @@ void cat(char *name)
     struct ClusterBuffer buf;
     struct FAT32DriverRequest request = {
         .buf = &buf,
-        .parent_cluster_number = current_directory.cluster_number,
+        .parent_cluster_number = current_directory.parent_cluster_number,
         .buffer_size = 0x100000,
     };
 
     memcpy(request.name, name, sizeof(request.name));
 
-    syscall(READ, (uint32_t)&request, 0, 0);
-
-    int i = 0;
-    while (buf.buf[i] != '\0')
+    int8_t flag = 4;
+    syscall(READ, (uint32_t)&request, (uint32_t)&flag, 0);
+    if (flag == 0)
     {
-        if (buf.buf[i] == '\n')
+        int i = 0;
+        while (buf.buf[i] != '\0')
         {
-            syscall(KEYBOARD_UP_ROW, 0, 0, 0);
+            if (buf.buf[i] == '\n')
+            {
+                syscall(KEYBOARD_UP_ROW, 0, 0, 0);
+            }
+            else
+                syscall(PUTS_CHAR, (uint32_t)buf.buf[i], 0xF, 0);
+            i++;
         }
-        else
-            syscall(PUTS_CHAR, (uint32_t)buf.buf[i], 0xF, 0);
-        i++;
+        syscall(KEYBOARD_UP_ROW, 0, 0, 0);
     }
 }
 
@@ -240,7 +349,6 @@ void handle_command(char *input)
         syscall(KEYBOARD_UP_ROW, 0, 0, 0);
         char *test = get_string(temp, 1);
         cat(test);
-        syscall(KEYBOARD_UP_ROW, 0, 0, 0);
     }
     else if (strcmp(input, "cd"))
     {
@@ -255,8 +363,27 @@ void handle_command(char *input)
         find(test, ROOT_CLUSTER_NUMBER, current_directory.name, ROOT_CLUSTER_NUMBER);
         syscall(KEYBOARD_UP_ROW, 0, 0, 0);
     }
+    else if (strcmp(input, "cp"))
+    {
+        syscall(KEYBOARD_UP_ROW, 0, 0, 0);
+        char temp2[256];
+        memcpy(temp2, temp, 256);
+        char *test = get_string(temp, 1);
+        char *test2 = get_string(temp2, 2);
+        cp(test, test2);
+    }
+    else if (strcmp(input, "mv"))
+    {
+        syscall(KEYBOARD_UP_ROW, 0, 0, 0);
+        char temp2[256];
+        memcpy(temp2, temp, 256);
+        char *test = get_string(temp, 1);
+        char *test2 = get_string(temp2, 2);
+        mv(test, test2);
+    }
     else
     {
+        syscall(KEYBOARD_UP_ROW, 0, 0, 0);
         syscall(PUTS, (uint32_t) "command not found", 17, 0xC);
         syscall(KEYBOARD_UP_ROW, 0, 0, 0);
     }

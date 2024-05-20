@@ -292,7 +292,7 @@ int8_t write(struct FAT32DriverRequest request)
 
   uint8_t dirtable_empty_slot = 0;
 
-  for (uint8_t i = 0; i < 64; i++)
+  for (uint8_t i = 2; i < 64; i++)
   {
     struct FAT32DirectoryEntry dir_entry = dir_table.table[i];
 
@@ -316,7 +316,7 @@ int8_t write(struct FAT32DriverRequest request)
   if (request.buffer_size == 0)
   {
     isFolder = true;
-    required += 1; // Untuk folder, dibutuhkan satu cluster 
+    required += 1; // Untuk folder, dibutuhkan satu cluster
   }
 
   uint32_t slot_buf[required];
@@ -386,7 +386,6 @@ int8_t write(struct FAT32DriverRequest request)
   for (uint8_t b = 0; b < 3; b++)
     entry.ext[b] = request.ext[b];
 
-  
   // Menambahkan entry ke directory table
   dir_table.table[dirtable_empty_slot] = entry;
 
