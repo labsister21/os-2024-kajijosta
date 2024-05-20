@@ -339,3 +339,17 @@ void puts_char(const char c, uint8_t color)
     keyboard_state.keyboard_col += 1;
     framebuffer_set_cursor(keyboard_state.keyboard_row, keyboard_state.keyboard_col);
 }
+
+void puts_newline(void)
+{
+    keyboard_state.keyboard_row += 1;
+    keyboard_state.keyboard_col = 0;
+    framebuffer_set_cursor(keyboard_state.keyboard_row, keyboard_state.keyboard_col);
+}
+
+void reset_keyboard_state(void)
+{
+    keyboard_state.keyboard_row = 0;
+    keyboard_state.keyboard_col = 0;
+    framebuffer_set_cursor(keyboard_state.keyboard_row, keyboard_state.keyboard_col);
+}

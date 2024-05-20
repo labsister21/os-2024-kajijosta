@@ -70,4 +70,8 @@ void puts(const char *str, uint8_t size, uint8_t color);
 
 void puts_char(const char c, uint8_t color);
 
+void puts_newline(void);
+
+void reset_keyboard_state(void);
+
 #endif
