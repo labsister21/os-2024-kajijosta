@@ -76,6 +76,12 @@ int main(int argc, char *argv[])
     request.parent_cluster_number = temp;
 
     sscanf(argv[1], "%8s", request.name);
+    struct ClusterBuffer buf;
+    struct FAT32DriverRequest req2 = {.buf = &buf,
+                                      .name = "shell",
+                                      .parent_cluster_number = 0x02,
+                                      .buffer_size = 0x100000};
+    uint8_t err = delete (req2);
     int retcode = write(request);
     switch (retcode)
     {
