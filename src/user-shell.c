@@ -64,6 +64,32 @@ struct DirectoryState pop_directory()
     return directory_stack[top--];
 }
 
+void find(char *name, uint32_t cluster_number, char *curent_dir, uint32_t next_cluster)
+{
+    struct FAT32DirectoryTable buf;
+    struct FAT32DriverRequest request = {.buf = &buf,
+                                         .parent_cluster_number = cluster_number,
+                                         .buffer_size = sizeof(struct FAT32DirectoryTable)};
+    memcpy(request.name, curent_dir, sizeof(request.name));
+
+    syscall(1, (uint32_t)&request, 0, 0);
+    for (int i = 2; i < 64; i++)
+    {
+        if (buf.table[i].user_attribute == UATTR_NOT_EMPTY)
+        {
+            if (strcmp(buf.table[i].name, name))
+            {
+                syscall(6, (uint32_t)buf.table[i].name, 8, 0xF);
+                return;
+            }
+            else if (buf.table[i].attribute == ATTR_SUBDIRECTORY)
+            {
+                find(name, next_cluster, buf.table[i].name, buf.table[i].cluster_low | (buf.table[i].cluster_high << 16));
+            }
+        }
+    }
+}
+
 void cd(char *name)
 {
     if (strcmp(name, ".."))
@@ -80,12 +106,7 @@ void cd(char *name)
     memcpy(request.name, current_directory.name, sizeof(current_directory.name));
 
     syscall(READ_DIR, (uint32_t)&request, 0, 0);
-    int i;
-    if (current_directory.cluster_number == ROOT_CLUSTER_NUMBER)
-        i = 2;
-    else
-        i = 0;
-    for (; i < 64; i++)
+    for (int i = 2; i < 64; i++)
     {
         if (buf.table[i].user_attribute == UATTR_NOT_EMPTY)
         {
@@ -94,6 +115,7 @@ void cd(char *name)
                 if (strcmp(buf.table[i].name, name))
                 {
                     push_directory(current_directory);
+                    current_directory.parent_cluster_number = current_directory.cluster_number;
                     current_directory.cluster_number = buf.table[i].cluster_low | (buf.table[i].cluster_high << 16);
                     memcpy(current_directory.name, name, sizeof(current_directory.name));
                     return;
@@ -187,7 +209,6 @@ void show_home()
 
 void handle_command(char *input)
 {
-    syscall(KEYBOARD_UP_ROW, 0, 0, 0);
     char temp[256];
     memcpy(temp, input, 256);
     get_string(input, 0);
@@ -198,6 +219,7 @@ void handle_command(char *input)
     }
     else if (strcmp(temp, "ls"))
     {
+        syscall(KEYBOARD_UP_ROW, 0, 0, 0);
         ls();
         syscall(KEYBOARD_UP_ROW, 0, 0, 0);
     }
@@ -215,14 +237,22 @@ void handle_command(char *input)
     }
     else if (strcmp(input, "cat"))
     {
+        syscall(KEYBOARD_UP_ROW, 0, 0, 0);
         char *test = get_string(temp, 1);
         cat(test);
         syscall(KEYBOARD_UP_ROW, 0, 0, 0);
     }
     else if (strcmp(input, "cd"))
     {
+        syscall(KEYBOARD_UP_ROW, 0, 0, 0);
         char *test = get_string(temp, 1);
         cd(test);
+    }
+    else if (strcmp(input, "find"))
+    {
+        syscall(KEYBOARD_UP_ROW, 0, 0, 0);
+        char *test = get_string(temp, 1);
+        find(test, ROOT_CLUSTER_NUMBER, current_directory.name, ROOT_CLUSTER_NUMBER);
         syscall(KEYBOARD_UP_ROW, 0, 0, 0);
     }
     else
@@ -249,10 +279,10 @@ int main(void)
         {
             if (buf == '\n')
             {
-                input[i] = '\0';
                 handle_command(input);
                 i = 0;
-                input[0] = '\0';
+                for (int j = 0; j < 256; j++)
+                    input[j] = '\0';
             }
             else
             {
