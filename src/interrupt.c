@@ -3,6 +3,7 @@
 #include "header/cpu/keyboard.h"
 #include "header/cpu/gdt.h"
 #include "header/cpu/fat32.h"
+#include "header/text/framebuffer.h"
 
 void io_wait(void)
 {
@@ -107,6 +108,15 @@ void syscall(struct InterruptFrame frame)
         break;
     case 7:
         keyboard_state_activate();
+        break;
+    case 8:
+        puts_newline();
+        break;
+    case 9:
+        reset_keyboard_state();
+        break;
+    case 10:
+        framebuffer_clear();
         break;
     }
 }
